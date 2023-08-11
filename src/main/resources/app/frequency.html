@@ -9,37 +9,28 @@
 <body>
     <h1 class="tramchesterHeading w-75">Stop Freqency Map</h1>
     <div id="frequencymap" class="tramchesterApp w-75">
-            <b-container>
-                <b-row>
-                    <b-col cols="8">
-                        <div id="leafletMap"></div>                        
-                    </b-col>
-                    <b-col>
-                        <div class="mb-2"><div>Hours: {{ hours[0] }} to {{ hours[1] }}</div>
-                            <vue-slider v-model="hours" min="0" max="24" :enable-cross="false"></vue-slider>
-                        </div>
-                        <b-row > 
-                            <b-col class="mb-2">
-                                <b-input-group>
-                                    <b-form-datepicker id="date" v-model="date" 
-                                        :date-format-options="{ year: 'numeric', month: 'numeric', day: 'numeric' }" 
-                                        label-calendar="TravelDateCalendar" required></b-form-datepicker>
-                                    <b-input-group-append>
-                                        <b-button id="todayButton" variant="info" @click="dateToNow()">Today</b-button>
-                                    </b-input-group-append>
-                                </b-input-group>
-                            </b-col>
-                        </b-row>
-                        <b-row>
-                            <b-col>
-                                <b-button id="drawMap" variant="primary" @click="draw()">Draw</b-button>  
-                            </b-col>
-                        </b-row>
-
-                    </b-col>
-                </b-row>
-            </b-container>
-
+        <div class="container" id="startAndEnd">
+            <div class="row">
+                <div class="col">
+                    Map
+                    <div id="leafletMap"></div>  
+                </div>          
+                <div class="col">
+                    <div class="mb-2"><div>Hours: {{ hours[0] }} to {{ hours[1] }}</div>
+                        <vue-slider v-model="hours" min="0" max="24" :enable-cross="false"></vue-slider>
+                    </div>
+                    <div class="mb-2"> 
+                            <b-form-datepicker id="date" v-model="date" 
+                                :date-format-options="{ year: 'numeric', month: 'numeric', day: 'numeric' }" 
+                                label-calendar="TravelDateCalendar" required></b-form-datepicker>
+                            <button id="todayButton" variant="info" @click="dateToNow()">Today</button>
+                    </div>
+                    <div class="mb-2"> 
+                            <button id="drawMap" variant="primary" @click="draw()">Draw</button>  
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <app-footer v-bind:feedinfo="feedinfo" v-bind:havepos="havePos" v-on:network-error="networkErrorOccured()">

@@ -120,8 +120,10 @@ var mapApp = new Vue({
             mapApp.frequencyLayer = L.featureGroup();
         },
         draw() {
-            var startTime = mapApp.hours[0]+":00";
-            var endTime = mapApp.hours[1]+":00";
+            const startTimeTxt = mapApp.hours[0].toString();
+            const endTimeTxt = mapApp.hours[1].toString();
+            const startTime = startTimeTxt.padStart(2,'0') + ":00";
+            const endTime = endTimeTxt.padStart(2,'0') + ":00";
             queryForFrequencies(500, mapApp.date, startTime, endTime);
         },
         dateToNow() {
