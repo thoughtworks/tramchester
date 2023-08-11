@@ -2,16 +2,13 @@
 const axios = require('axios');
 
 var Vue = require('vue');
-Vue.use(require('bootstrap-vue'));
 
 var L = require('leaflet');
 
 require('file-loader?name=[name].[ext]!../routes.html');
 
-import VueSlider from 'vue-slider-component'
 
 import 'bootstrap/dist/css/bootstrap.css';
-import 'bootstrap-vue/dist/bootstrap-vue.css';
 import 'leaflet/dist/leaflet.css'
 import './../css/tramchester.css'
 import 'vue-slider-component/theme/default.css'
@@ -32,8 +29,7 @@ function getCurrentDate() {
 var mapApp = new Vue({
     el: '#routeMap',
     components: {
-        'app-footer' : Footer, 
-        'VueSlider': VueSlider
+        'app-footer' : Footer
     },
     data() {
         return {

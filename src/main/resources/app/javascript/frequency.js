@@ -2,7 +2,6 @@
 const axios = require('axios');
 
 var Vue = require('vue');
-//Vue.use(require('bootstrap-vue'));
 var oboe = require('oboe');
 
 var L = require('leaflet');
@@ -13,7 +12,6 @@ import VueSlider from 'vue-slider-component'
 
 
 import 'bootstrap/dist/css/bootstrap.css';
-//import 'bootstrap-vue/dist/bootstrap-vue.css';
 import 'leaflet/dist/leaflet.css'
 import './../css/tramchester.css'
 import 'vue-slider-component/theme/default.css'

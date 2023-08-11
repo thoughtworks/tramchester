@@ -35,7 +35,6 @@ export default {
             }
         });
     
-
     },
 
     highlightRoute: function(event) {

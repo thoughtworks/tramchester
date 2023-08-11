@@ -3,15 +3,14 @@ const axios = require('axios');
 
 var Vue = require('vue');
 Vue.use(require('vue-cookies'));
-Vue.use(require('bootstrap-vue'));
 
 var L = require('leaflet');
 require('leaflet-arrowheads')
+require('leaflet-polylineoffset')
 
 require('file-loader?name=[name].[ext]!../trammap.html');
 
 import 'bootstrap/dist/css/bootstrap.css';
-import 'bootstrap-vue/dist/bootstrap-vue.css';
 import 'leaflet/dist/leaflet.css'
 import './../css/tramchester.css'
 
