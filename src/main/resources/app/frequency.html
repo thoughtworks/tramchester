@@ -19,9 +19,8 @@
                         <vue-slider v-model="hours" min="0" max="24" :enable-cross="false"></vue-slider>
                     </div>
                     <div class="mb-2"> 
-                            <b-form-datepicker id="date" v-model="date" 
-                                :date-format-options="{ year: 'numeric', month: 'numeric', day: 'numeric' }" 
-                                label-calendar="TravelDateCalendar" required></b-form-datepicker>
+                            <input type="date" id="date" v-model="date" 
+                                label-calendar="TravelDateCalendar" required></input>
                             <button id="todayButton" variant="info" @click="dateToNow()">Today</button>
                     </div>
                     <div class="mb-2"> 
