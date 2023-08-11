@@ -6,7 +6,6 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
-import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.integration.testSupport.ConfigParameterResolver;
 import com.tramchester.repository.RouteRepository;
@@ -90,8 +89,7 @@ class KnownTramRouteTest {
             KnownTramRoute.getFor(date).forEach(knownTramRoute -> {
                 String prefix = "On " + date + " ";
                 List<Route> findLoadedFor = loadedRoutes.stream().
-                        filter(loadedRoute -> loadedRoute.getName().equals(knownTramRoute.longName())).
-                        collect(Collectors.toList());
+                        filter(loadedRoute -> loadedRoute.getName().equals(knownTramRoute.longName())).toList();
                 assertEquals(1, findLoadedFor.size(), prefix + "could not find loaded route using long name match for " + knownTramRoute);
                 Route loadedRoute = findLoadedFor.get(0);
                 assertEquals(loadedRoute.getShortName(), knownTramRoute.shortName(), prefix + "short name incorrect for " + knownTramRoute);

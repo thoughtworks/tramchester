@@ -1,16 +1,14 @@
 package com.tramchester.testSupport.reference;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.tramchester.domain.Route;
-import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.reference.RouteDirection;
 import com.tramchester.domain.reference.TransportMode;
 
 import java.time.DayOfWeek;
-import java.util.*;
+import java.util.EnumSet;
+import java.util.Set;
 
 import static com.tramchester.domain.reference.RouteDirection.Inbound;
 import static com.tramchester.domain.reference.RouteDirection.Outbound;
@@ -22,26 +20,26 @@ import static java.lang.String.format;
  */
 public enum KnownTramRoute {
 
-    AltrinchamPiccadilly("2PPL", Inbound, "Altrincham - Piccadilly"),
-    PiccadillyAltrincham("2PPL", Outbound, "Piccadilly - Altrincham"),
+    AltrinchamPiccadilly("Purple Line", Inbound, "Altrincham - Piccadilly"),
+    PiccadillyAltrincham("Purple Line", Outbound, "Piccadilly - Altrincham"),
 
-    AltrinchamManchesterBury("1GRN", Inbound, "Altrincham - Manchester - Bury"),
-    BuryManchesterAltrincham("1GRN", Outbound, "Bury - Manchester - Altrincham"),
+    AltrinchamManchesterBury("Green Line", Inbound, "Altrincham - Manchester - Bury"),
+    BuryManchesterAltrincham("Green Line", Outbound, "Bury - Manchester - Altrincham"),
 
-    AshtonUnderLyneManchesterEccles("3BLU", Inbound, "Ashton Under Lyne - Manchester - Eccles"),
-    EcclesManchesterAshtonUnderLyne("3BLU", Outbound, "Eccles - Manchester - Ashton Under Lyne"),
+    AshtonUnderLyneManchesterEccles("Blue Line", Inbound, "Ashton Under Lyne - Manchester - Eccles"),
+    EcclesManchesterAshtonUnderLyne("Blue Line", Outbound, "Eccles - Manchester - Ashton Under Lyne"),
 
-    BuryPiccadilly("4YLW", Inbound,"Bury - Piccadilly"),
-    PiccadillyBury("4YLW", Outbound, "Piccadilly - Bury"),
+    BuryPiccadilly("Yellow Line", Inbound,"Bury - Piccadilly"),
+    PiccadillyBury("Yellow Line", Outbound, "Piccadilly - Bury"),
 
-    EastDidisburyManchesterShawandCromptonRochdale("5PNK", Inbound, "East Didsbury - Manchester - Shaw and Crompton - Rochdale"),
-    RochdaleShawandCromptonManchesterEastDidisbury("5PNK", Outbound, "Rochdale - Shaw and Crompton - Manchester - East Didsbury"),
+    EastDidisburyManchesterShawandCromptonRochdale("Pink Line", Inbound, "East Didsbury - Manchester - Shaw and Crompton - Rochdale"),
+    RochdaleShawandCromptonManchesterEastDidisbury("Pink Line", Outbound, "Rochdale - Shaw and Crompton - Manchester - East Didsbury"),
 
-    ManchesterAirportWythenshaweVictoria("6NVY", Inbound, "Manchester Airport - Wythenshawe - Victoria"),
-    VictoriaWythenshaweManchesterAirport("6NVY", Outbound, "Victoria - Wythenshawe - Manchester Airport"),
+    ManchesterAirportWythenshaweVictoria("Navy Line", Inbound, "Manchester Airport - Wythenshawe - Victoria"),
+    VictoriaWythenshaweManchesterAirport("Navy Line", Outbound, "Victoria - Wythenshawe - Manchester Airport"),
 
-    TheTraffordCentreCornbrook("7RED", Inbound, "The Trafford Centre - Cornbrook"),
-    CornbrookTheTraffordCentre("7RED", Outbound, "Cornbrook - The Trafford Centre");
+    TheTraffordCentreCornbrook("Red Line", Inbound, "The Trafford Centre - Cornbrook"),
+    CornbrookTheTraffordCentre("Red Line", Outbound, "Cornbrook - The Trafford Centre");
 
     private final IdFor<Route> fakeId;
     private final RouteDirection direction;
