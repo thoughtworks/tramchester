@@ -11,6 +11,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.resources.DataVersionResourceTest;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
+import com.tramchester.testSupport.testTags.SmokeTest;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -207,13 +208,14 @@ public class AppUserJourneyTest extends UserJourneyTest {
 
     @ParameterizedTest(name = "{displayName} {arguments}")
     @MethodSource("getProvider")
+    @SmokeTest
     void shouldCheckAltrinchamToDeansgate(ProvidesDriver providesDriver) {
         AppPage appPage = prepare(providesDriver, url);
         TramTime queryTime = TramTime.of(10,0);
         desiredJourney(appPage, altrincham, deansgate, when, queryTime, false);
         appPage.planAJourney();
 
-        assertTrue(appPage.resultsClickable());
+        assertTrue(appPage.resultsClickable(), "results clickable");
 
         List<TestResultSummaryRow> results = appPage.getResults();
         // TODO Lockdown 3->2

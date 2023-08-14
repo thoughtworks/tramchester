@@ -2,9 +2,13 @@ package com.tramchester;
 
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 
 public class StaticAssetFilter implements Filter {
+    private static final Logger logger = LoggerFactory.getLogger(StaticAssetFilter.class);
 
     private final int seconds;
 
@@ -14,7 +18,7 @@ public class StaticAssetFilter implements Filter {
 
     @Override
     public void init(FilterConfig filterConfig) {
-
+        logger.info("Init for " + filterConfig);
     }
 
     @Override
@@ -29,6 +33,6 @@ public class StaticAssetFilter implements Filter {
 
     @Override
     public void destroy() {
-
+        logger.info("destroy");
     }
 }

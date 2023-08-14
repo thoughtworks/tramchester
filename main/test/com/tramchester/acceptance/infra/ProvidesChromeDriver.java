@@ -51,7 +51,9 @@ public class ProvidesChromeDriver extends ProvidesDesktopDriver {
             chromeOptions.setExperimentalOption("w3c",false);
             //chromeOptions.setExperimentalOption("geolocation", true);
         } else {
-            chromeOptions.setHeadless(true);
+            if (System.getenv("DISABLE_HEADLESS")==null) {
+                chromeOptions.setHeadless(true);
+            }
         }
 
         providesDateInput = new ProvidesChromeDateInput();

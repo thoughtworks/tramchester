@@ -5,7 +5,7 @@ plugins {
 }
 
 apply plugin: 'java'
-apply plugin: 'idea'
+//apply plugin: 'idea'
 apply plugin: 'application'
 
 import com.mgd.core.gradle.*
@@ -525,6 +525,22 @@ task acceptance(type: Test) {
     }
     finalizedBy {
         blockhost
+    }
+}
+
+// fast feedback on whether acceptance tests run etc
+task smokeTest(type: Test, dependsOn: ['webpack', 'compileJava']) {
+    minHeapSize = "1000m"
+    maxHeapSize = "2500m"
+    useJUnitPlatform()
+    useJUnitPlatform {
+        includeTags "SmokeTest"
+    }
+    filter {
+        includeTestsMatching "com.tramchester.acceptance.*"
+    }
+    testLogging {
+        events "passed", "skipped", "failed", "started", "standardError" , "standardOut"
     }
 }
 

@@ -109,29 +109,32 @@ public class AppPage extends Page {
     }
 
     public void setSpecificDate(LocalDate targetDate) {
-        LocalDate currentDate = TestEnv.LocalNow().toLocalDate();
 
         WebElement dateElement = findElementById("date");
-        moveToElement(dateElement).click().perform();
+        String keys = providesDateInput.createDateInput(targetDate);
+        dateElement.sendKeys(keys);
 
-        WebElement dialog = waitForElement(By.xpath("//div[@aria-roledescription='TravelDateCalendar']"),
-                timeoutInSeconds);
-        dialog.sendKeys(Keys.HOME); // today
+//        LocalDate currentDate = TestEnv.LocalNow().toLocalDate();
+//        moveToElement(dateElement).click().perform();
 
-        // forwards or back as needed, very clunky....
-        if (targetDate.isAfter(currentDate)) {
-            long diffInDays = (targetDate.toEpochDay() - currentDate.toEpochDay());
-            for (int i = 0; i < diffInDays; i++) {
-                dialog.sendKeys(Keys.RIGHT);
-            }
-        } else {
-            long diffInDays = (currentDate.toEpochDay() - targetDate.toEpochDay());
-            for (int i = 0; i < diffInDays; i++) {
-                dialog.sendKeys(Keys.LEFT);
-            }
-        }
-
-        dialog.sendKeys(Keys.ENTER);
+//        WebElement dialog = waitForElement(By.xpath("//div[@aria-roledescription='TravelDateCalendar']"),
+//                timeoutInSeconds);
+//        dialog.sendKeys(Keys.HOME); // today
+//
+//        // forwards or back as needed, very clunky....
+//        if (targetDate.isAfter(currentDate)) {
+//            long diffInDays = (targetDate.toEpochDay() - currentDate.toEpochDay());
+//            for (int i = 0; i < diffInDays; i++) {
+//                dialog.sendKeys(Keys.RIGHT);
+//            }
+//        } else {
+//            long diffInDays = (currentDate.toEpochDay() - targetDate.toEpochDay());
+//            for (int i = 0; i < diffInDays; i++) {
+//                dialog.sendKeys(Keys.LEFT);
+//            }
+//        }
+//
+//        dialog.sendKeys(Keys.ENTER);
     }
 
     public void setTime(TramTime time) {
@@ -357,7 +360,10 @@ public class AppPage extends Page {
                 if (count--<0) {
                     return false;
                 }
-                driver.findElement(byId);
+                WebElement dialog = driver.findElement(byId);
+                if (!dialog.isDisplayed()) {
+                    return true;
+                }
                 Thread.sleep(pauseMs);
             }
         } catch (InterruptedException e) {

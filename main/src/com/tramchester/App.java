@@ -68,7 +68,6 @@ public class App extends Application<AppConfiguration>  {
         Runtime.getRuntime().addShutdownHook(new Thread(() ->
             {
                 logger.warn("Shutting down");
-                //LogManager.shutdown();
             }));
         try {
             logArgs(args);
@@ -81,7 +80,7 @@ public class App extends Application<AppConfiguration>  {
     }
 
     private static void logArgs(String[] args) {
-        StringBuilder msg = new StringBuilder();
+        final StringBuilder msg = new StringBuilder();
         for (int i = 0; i < args.length; i++) {
             if (i>0) {
                 msg.append(" ");
@@ -92,7 +91,7 @@ public class App extends Application<AppConfiguration>  {
     }
 
     private static void logEnvironmentalVars(List<String> names) {
-        Map<String, String> vars = System.getenv();
+        final Map<String, String> vars = System.getenv();
         vars.forEach((name,value) -> {
             if (names.contains(name)) {
                 logger.info(format("Environment %s=%s", name, value));
@@ -111,6 +110,7 @@ public class App extends Application<AppConfiguration>  {
 
         bootstrap.setConfigurationSourceProvider(substitutingSourceProvider);
 
+        logger.info("Add asset bundle for static content");
         bootstrap.addBundle(new AssetsBundle("/app", "/app", "index.html", "app"));
 
         // api/swagger.json and api/swagger
@@ -124,6 +124,7 @@ public class App extends Application<AppConfiguration>  {
         });
 
         // find me at https://www.tramchester.com/api/swagger
+        logger.info("Add asset bundle for swagger-ui");
         bootstrap.addBundle(new AssetsBundle("/assets/swagger-ui", "/swagger-ui"));
         logger.info("init bootstrap finished");
     }
@@ -138,7 +139,9 @@ public class App extends Application<AppConfiguration>  {
         this.container = new ComponentsBuilder().create(configuration, registersCacheMetrics);
 
         try {
+            logger.info("Initial dependency container");
             container.initialise();
+            logger.info("Dependency contained is ready");
         }
         catch (Exception exception) {
             logger.error("Uncaught exception during init ", exception);
@@ -146,36 +149,45 @@ public class App extends Application<AppConfiguration>  {
             //System.exit(-1);
         }
 
-        ScheduledExecutorServiceBuilder executorServiceBuilder = environment.lifecycle().scheduledExecutorService("tramchester-%d");
-        ScheduledExecutorService executor = executorServiceBuilder.build();
+        logger.info("Create schedule executor service");
+        final ScheduledExecutorServiceBuilder executorServiceBuilder = environment.lifecycle().scheduledExecutorService("tramchester-%d");
+        final ScheduledExecutorService executor = executorServiceBuilder.build();
 
+        logger.info("Add lifecycle event listener");
         environment.lifecycle().addEventListener(new LifeCycleHandler(container, executor));
 
-        MutableServletContextHandler applicationContext = environment.getApplicationContext();
+        final MutableServletContextHandler applicationContext = environment.getApplicationContext();
 
+        logger.info("Add ELB header redirect");
         // Redirect http -> https based on header set by ELB
-        RedirectToHttpsUsingELBProtoHeader redirectHttpFilter = new RedirectToHttpsUsingELBProtoHeader(configuration);
+        final RedirectToHttpsUsingELBProtoHeader redirectHttpFilter = new RedirectToHttpsUsingELBProtoHeader(configuration);
         applicationContext.addFilter(new FilterHolder(redirectHttpFilter), "/*", EnumSet.of(DispatcherType.REQUEST));
 
         // Redirect / -> /app
-        RedirectToAppFilter redirectToAppFilter = new RedirectToAppFilter();
+        logger.info("Add redirect from / to /app");
+        final RedirectToAppFilter redirectToAppFilter = new RedirectToAppFilter();
         applicationContext.addFilter(new FilterHolder(redirectToAppFilter), "/", EnumSet.of(DispatcherType.REQUEST));
         filtersForStaticContent(environment, configuration.getStaticAssetCacheTimeSeconds());
 
         // api end points registration
         registerAPIResources(environment, configuration.getPlanningEnabled());
 
-        // WIP - does not work, leave above workaround in place
+        // TODO Check this
+        logger.info("Set samesite cookie attribute");
         environment.getApplicationContext().getServletContext().setAttribute(HttpCookie.SAME_SITE_DEFAULT_ATTRIBUTE,
                 HttpCookie.SameSite.STRICT);
 
         // only enable live data present in config
         if (configuration.liveTfgmTramDataEnabled()) {
+            logger.info("Start tram live data");
             initLiveDataMetricAndHealthcheck(configuration.getLiveDataConfig(), environment, executor, metricRegistry);
+        } else {
+            logger.info("Tram live data disabled");
         }
 
         // report specific metrics to AWS cloudwatch
         if (configuration.getSendCloudWatchMetrics()) {
+            logger.info("start cloudwatch metrics");
             final CloudWatchReporter cloudWatchReporter = CloudWatchReporter.forRegistry(metricRegistry,
                     container.get(ConfigFromInstanceUserData.class), container.get(SendMetricsToCloudWatch.class));
             cloudWatchReporter.start(configuration.GetCloudWatchMetricsFrequencyMinutes(), TimeUnit.MINUTES);
@@ -186,6 +198,7 @@ public class App extends Application<AppConfiguration>  {
         container.registerHealthchecksInto(environment.healthChecks());
 
         // serve health checks (additionally) on separate URL as we don't want to expose whole of Admin pages
+        logger.info("Expose healthchecks at /healthcheck");
         environment.servlets().addServlet(
                 "HealthCheckServlet",
                 new HealthCheckServlet(environment.healthChecks())
@@ -193,7 +206,7 @@ public class App extends Application<AppConfiguration>  {
 
         // ready to serve traffic
         logger.info("Prepare to signal cloud formation if running in cloud");
-        SignalToCloudformationReady signaller = container.get(SignalToCloudformationReady.class);
+        final SignalToCloudformationReady signaller = container.get(SignalToCloudformationReady.class);
         signaller.send();
 
         logger.warn("Now running");
@@ -226,31 +239,34 @@ public class App extends Application<AppConfiguration>  {
 
     private void initLiveDataMetricAndHealthcheck(TfgmTramLiveDataConfig configuration, Environment environment,
                                                   ScheduledExecutorService executor, MetricRegistry metricRegistry) {
+        logger.info("Init live data and live data healthchecks");
         // initial load of live data
-        LiveDataUpdater updatesData = container.get(LiveDataUpdater.class);
+        final LiveDataUpdater updatesData = container.get(LiveDataUpdater.class);
         updatesData.refreshRespository();
 
         // refresh live data job
-        int initialDelay = 10;
-        ScheduledFuture<?> liveDataFuture = executor.scheduleAtFixedRate(() -> {
+        final int initialDelay = 10;
+        final ScheduledFuture<?> liveDataFuture = executor.scheduleAtFixedRate(() -> {
             try {
                 updatesData.refreshRespository();
             } catch (Exception exeception) {
                 logger.error("Unable to refresh live data", exeception);
             }
         }, initialDelay, configuration.getRefreshPeriodSeconds(), TimeUnit.SECONDS);
+
         environment.healthChecks().register("liveDataJobCheck", new LiveDataJobHealthCheck(liveDataFuture));
 
         // archive live data in S3
         UploadsLiveData observer = container.get(UploadsLiveData.class);
         updatesData.observeUpdates(observer);
 
-        TramDepartureRepository tramDepartureRepository = container.get(TramDepartureRepository.class);
-        PlatformMessageRepository messageRepository = container.get(PlatformMessageRepository.class);
-        CountsUploadedLiveData countsLiveDataUploads = container.get(CountsUploadedLiveData.class);
+        final TramDepartureRepository tramDepartureRepository = container.get(TramDepartureRepository.class);
+        final PlatformMessageRepository messageRepository = container.get(PlatformMessageRepository.class);
+        final CountsUploadedLiveData countsLiveDataUploads = container.get(CountsUploadedLiveData.class);
 
         // TODO via DI
-        RegistersMetricsWithDropwizard registersMetricsWithDropwizard = new RegistersMetricsWithDropwizard(metricRegistry);
+        logger.info("Register live data healthchecks");
+        final RegistersMetricsWithDropwizard registersMetricsWithDropwizard = new RegistersMetricsWithDropwizard(metricRegistry);
         registersMetricsWithDropwizard.registerMetricsFor(tramDepartureRepository);
         registersMetricsWithDropwizard.registerMetricsFor(messageRepository);
         registersMetricsWithDropwizard.registerMetricsFor(countsLiveDataUploads);
@@ -258,7 +274,7 @@ public class App extends Application<AppConfiguration>  {
     }
 
     private void filtersForStaticContent(Environment environment, Integer staticAssetCacheTimeSecond) {
-        StaticAssetFilter filter = new StaticAssetFilter(staticAssetCacheTimeSecond);
+        final StaticAssetFilter filter = new StaticAssetFilter(staticAssetCacheTimeSecond);
         setFilterFor(environment, filter, "dist", "/app/*");
     }
 

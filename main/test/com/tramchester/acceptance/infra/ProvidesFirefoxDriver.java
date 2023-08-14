@@ -59,7 +59,10 @@ public class ProvidesFirefoxDriver extends ProvidesDesktopDriver {
 
             FirefoxOptions firefoxOptions = new FirefoxOptions(capabilities);
 
-            firefoxOptions.setHeadless(true);
+            // allow disabling of headless more via env var
+            if (System.getenv("DISABLE_HEADLESS")==null) {
+                firefoxOptions.setHeadless(true);
+            }
 
             driver = new FirefoxDriver(firefoxOptions);
         }

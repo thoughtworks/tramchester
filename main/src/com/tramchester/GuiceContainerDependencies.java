@@ -80,6 +80,7 @@ public class GuiceContainerDependencies implements ComponentContainer {
     }
 
     public void registerHealthchecksInto(HealthCheckRegistry healthChecks) {
+        logger.info("Register healthchecks");
         RegistersHealthchecks instance = get(RegistersHealthchecks.class);
         instance.registerAllInto(healthChecks);
     }

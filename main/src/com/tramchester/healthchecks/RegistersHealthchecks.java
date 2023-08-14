@@ -3,6 +3,8 @@ package com.tramchester.healthchecks;
 import com.codahale.metrics.health.HealthCheckRegistry;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.time.ProvidesNow;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.time.Duration;
@@ -12,6 +14,7 @@ import java.util.Set;
 
 @LazySingleton
 public class RegistersHealthchecks {
+    private static final Logger logger = LoggerFactory.getLogger(RegistersHealthchecks.class);
 
     private final Set<TramchesterHealthCheck> healthChecks;
 
@@ -55,6 +58,8 @@ public class RegistersHealthchecks {
     }
 
     public void registerAllInto(HealthCheckRegistry registry) {
-        healthChecks.forEach(healthCheck -> registry.register(healthCheck.getName(), healthCheck));
+        healthChecks.forEach(healthCheck -> {
+            logger.info("Register healthcheck " + healthCheck.getName());
+            registry.register(healthCheck.getName(), healthCheck); });
     }
 }

@@ -2,7 +2,6 @@ package com.tramchester.acceptance.infra;
 
 import com.tramchester.config.AppConfiguration;
 import io.dropwizard.core.Application;
-import io.dropwizard.testing.ConfigOverride;
 import io.dropwizard.testing.junit5.DropwizardAppExtension;
 
 import java.util.Optional;
@@ -16,15 +15,10 @@ public class AcceptanceAppExtenstion extends DropwizardAppExtension<AppConfigura
     private final Optional<String> serverURLFromEnv;
     private final String localRunHost;
 
-    public AcceptanceAppExtenstion(Class<? extends Application<AppConfiguration>> applicationClass, String configPath,
-                                   ConfigOverride... configOverrides) {
-        super(applicationClass, configPath, configOverrides);
+    public AcceptanceAppExtenstion(Class<? extends Application<AppConfiguration>> applicationClass, String configPath) {
+        super(applicationClass, configPath);
         serverURLFromEnv = Optional.ofNullable(System.getenv("SERVER_URL"));
         localRunHost = createLocalURL();
-    }
-
-    private String createLocalURL() {
-        return "localhost";
     }
 
     @Override
@@ -35,16 +29,20 @@ public class AcceptanceAppExtenstion extends DropwizardAppExtension<AppConfigura
         }
     }
 
-    private boolean localRun() {
-        return serverURLFromEnv.isEmpty();
-    }
-
     @Override
     public void after() {
         if (localRun()) {
             // stop local server
             super.after();
         }
+    }
+
+    private String createLocalURL() {
+        return "localhost";
+    }
+
+    private boolean localRun() {
+        return serverURLFromEnv.isEmpty();
     }
 
     public String getUrl() {

@@ -45,6 +45,6 @@ public class LifeCycleHandler implements LifeCycle.Listener {
 
     @Override
     public void lifeCycleStopped(LifeCycle event) {
-        logger.info("Dropwizard stoppped");
+        logger.info("Dropwizard stopped");
     }
 }
