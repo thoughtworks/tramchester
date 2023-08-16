@@ -1,5 +1,6 @@
 package com.tramchester.graph;
 
+import com.google.inject.Inject;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
@@ -13,7 +14,6 @@ import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.Map;
 

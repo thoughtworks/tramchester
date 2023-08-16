@@ -22,7 +22,6 @@ public class RedirectToHttpsUsingELBProtoHeader implements Filter {
     private static final Logger logger = LoggerFactory.getLogger(RedirectToHttpsUsingELBProtoHeader.class);
     public static final String X_FORWARDED_PROTO = "X-Forwarded-Proto";
 
-    private final TramchesterConfig config;
     private final String secureHost;
 
     // no cert for these hosts, need first to redirect to secure domain
@@ -34,7 +33,6 @@ public class RedirectToHttpsUsingELBProtoHeader implements Filter {
 
     public RedirectToHttpsUsingELBProtoHeader(TramchesterConfig config) {
         secureHost = config.getSecureHost();
-        this.config = config;
     }
 
     @Override
@@ -72,7 +70,6 @@ public class RedirectToHttpsUsingELBProtoHeader implements Filter {
         }
         catch(URISyntaxException unableToParse) {
             logger.error("Unable to parse the URL, send server error. Url: " + rawUrl, unableToParse);
-            //((HttpServletResponse) response).sendRedirect("https://"+config.getSecureHost());
             httpServletResponse.sendError(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }

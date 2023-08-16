@@ -4,12 +4,12 @@ const { VueLoaderPlugin } = require('vue-loader')
 module.exports = {
   mode: 'development',
   entry: {
-    main: './src/main/resources/app/javascript/journeyplan.js',
-    trammap: './src/main/resources/app/javascript/trammap.js',
-    traveltimes: './src/main/resources/app/javascript/traveltimes.js',
-    routemap: './src/main/resources/app/javascript/routemap.js',
-    linksmap: './src/main/resources/app/javascript/linksmap.js',
-    frequency: './src/main/resources/app/javascript/frequency.js'
+    main: './main/src/resources/app/javascript/journeyplan.js',
+    trammap: './main/src/resources/app/javascript/trammap.js',
+    traveltimes: './main/src/resources/app/javascript/traveltimes.js',
+    routemap: './main/src/resources/app/javascript/routemap.js',
+    linksmap: './main/src/resources/app/javascript/linksmap.js',
+    frequency: './main/src/resources/app/javascript/frequency.js'
   },
   output: {
     path: path.resolve(__dirname, 'build/resources/main/app'),
@@ -38,6 +38,13 @@ module.exports = {
                filename: 'images/[hash][ext][query]'
              }
       },
+        {
+            test:/\.html$/,
+            type: 'asset/resource' //,
+//            generator: {
+//                 filename: 'images/[hash][ext][query]'
+//               }
+        },
       {
          test: /\.(woff|woff2|eot|ttf|otf)$/i,
          type: 'asset/resource',

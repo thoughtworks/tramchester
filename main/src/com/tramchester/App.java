@@ -23,13 +23,16 @@ import io.dropwizard.core.Application;
 import io.dropwizard.assets.AssetsBundle;
 import io.dropwizard.core.setup.Bootstrap;
 import io.dropwizard.core.setup.Environment;
+import io.dropwizard.jersey.setup.JerseyEnvironment;
 import io.dropwizard.jetty.MutableServletContextHandler;
+import io.dropwizard.lifecycle.ServerLifecycleListener;
 import io.dropwizard.lifecycle.setup.ScheduledExecutorServiceBuilder;
 import io.dropwizard.metrics.servlets.HealthCheckServlet;
 import io.federecio.dropwizard.swagger.SwaggerBundle;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 import jakarta.servlet.DispatcherType;
 import org.eclipse.jetty.http.HttpCookie;
+import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -111,13 +114,14 @@ public class App extends Application<AppConfiguration>  {
         bootstrap.setConfigurationSourceProvider(substitutingSourceProvider);
 
         logger.info("Add asset bundle for static content");
-        bootstrap.addBundle(new AssetsBundle("/app", "/app", "index.html", "app"));
+        AssetsBundle appBundle = new AssetsBundle("/app", "/app", "index.html", "app");
+        bootstrap.addBundle(appBundle);
 
         // api/swagger.json and api/swagger
         bootstrap.addBundle(new SwaggerBundle<>() {
             @Override
             protected SwaggerBundleConfiguration getSwaggerBundleConfiguration(AppConfiguration configuration) {
-                SwaggerBundleConfiguration bundleConfiguration = configuration.getSwaggerBundleConfiguration();
+                final SwaggerBundleConfiguration bundleConfiguration = configuration.getSwaggerBundleConfiguration();
                 bundleConfiguration.setVersion(VersionRepository.getVersion().getBuildNumber());
                 return bundleConfiguration;
             }
@@ -133,8 +137,9 @@ public class App extends Application<AppConfiguration>  {
     public void run(AppConfiguration configuration, Environment environment) {
         logger.info("App run");
 
-        MetricRegistry metricRegistry = environment.metrics();
-        CacheMetrics.RegistersCacheMetrics registersCacheMetrics = new CacheMetrics.DropWizardMetrics(metricRegistry);
+        final MutableServletContextHandler applicationContext = environment.getApplicationContext();
+        final MetricRegistry metricRegistry = environment.metrics();
+        final CacheMetrics.RegistersCacheMetrics registersCacheMetrics = new CacheMetrics.DropWizardMetrics(metricRegistry);
 
         this.container = new ComponentsBuilder().create(configuration, registersCacheMetrics);
 
@@ -155,8 +160,7 @@ public class App extends Application<AppConfiguration>  {
 
         logger.info("Add lifecycle event listener");
         environment.lifecycle().addEventListener(new LifeCycleHandler(container, executor));
-
-        final MutableServletContextHandler applicationContext = environment.getApplicationContext();
+        environment.lifecycle().addServerLifecycleListener(server -> logger.info("Server has started " + server));
 
         logger.info("Add ELB header redirect");
         // Redirect http -> https based on header set by ELB
@@ -170,11 +174,11 @@ public class App extends Application<AppConfiguration>  {
         filtersForStaticContent(environment, configuration.getStaticAssetCacheTimeSeconds());
 
         // api end points registration
-        registerAPIResources(environment, configuration.getPlanningEnabled());
+        registerAPIResources(environment.jersey(), configuration.getPlanningEnabled());
 
         // TODO Check this
         logger.info("Set samesite cookie attribute");
-        environment.getApplicationContext().getServletContext().setAttribute(HttpCookie.SAME_SITE_DEFAULT_ATTRIBUTE,
+        applicationContext.getServletContext().setAttribute(HttpCookie.SAME_SITE_DEFAULT_ATTRIBUTE,
                 HttpCookie.SameSite.STRICT);
 
         // only enable live data present in config
@@ -212,7 +216,7 @@ public class App extends Application<AppConfiguration>  {
         logger.warn("Now running");
     }
 
-    private void registerAPIResources(Environment environment, boolean planningEnabled) {
+    private void registerAPIResources(JerseyEnvironment jerseyEnvironment, boolean planningEnabled) {
         logger.info("Registering api endpoints");
 
         container.getResources().forEach(apiResourceType -> {
@@ -229,7 +233,7 @@ public class App extends Application<AppConfiguration>  {
                 logger.info("Register " + canonicalName);
                 // this injects as a singleton
                 Object apiResource = container.get(apiResourceType);
-                environment.jersey().register(apiResource);
+                jerseyEnvironment.register(apiResource);
             } else {
                 logger.warn(format("Not registering '%s', planning is disabled", canonicalName));
             }

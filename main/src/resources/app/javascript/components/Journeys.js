@@ -207,7 +207,7 @@ export default {
     },
     template: `
     <div id="journeysComponent">
-        <div id="results" v-if="journeys.length>0">
+        <div v-if="journeys.length>0">
             <v-data-table id="results"
                 :headers="headers"
                 :items="journeys"
