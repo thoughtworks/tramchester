@@ -1,6 +1,7 @@
 package com.tramchester.acceptance.infra;
 
 import com.tramchester.config.AppConfiguration;
+import com.tramchester.testSupport.TestEnv;
 import io.dropwizard.core.Application;
 import io.dropwizard.testing.junit5.DropwizardAppExtension;
 
@@ -17,7 +18,7 @@ public class AcceptanceAppExtenstion extends DropwizardAppExtension<AppConfigura
 
     public AcceptanceAppExtenstion(Class<? extends Application<AppConfiguration>> applicationClass, String configPath) {
         super(applicationClass, configPath);
-        serverURLFromEnv = Optional.ofNullable(System.getenv("SERVER_URL"));
+        serverURLFromEnv = Optional.ofNullable(System.getenv(TestEnv.SERVER_URL_ENV_VAR));
         localRunHost = createLocalURL();
     }
 

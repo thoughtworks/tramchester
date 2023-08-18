@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
+import java.nio.ByteBuffer;
 import java.nio.file.Path;
 
 import static org.neo4j.configuration.GraphDatabaseSettings.DEFAULT_DATABASE_NAME;
@@ -79,8 +80,8 @@ public class GraphDatabaseServiceFactory implements DatabaseEventListener {
                     // see https://neo4j.com/docs/operations-manual/current/performance/memory-configuration/#heap-sizing
                     setConfig(GraphDatabaseSettings.pagecache_memory, neo4jPagecacheMemory).
 
-                    // TODO This one into config?
-                    //setConfig(GraphDatabaseSettings.tx_state_max_off_heap_memory, SettingValueParsers.BYTES.parse("256m")).
+                    // dbms.memory.transaction.total.max
+                    setConfig(GraphDatabaseSettings.memory_transaction_global_max_size,SettingValueParsers.BYTES.parse("540m")).
 
                     // NOTE: dbms.memory.transaction.total.max is 70% of heap size limit
                     setConfig(BootloaderSettings.max_heap_size, SettingValueParsers.BYTES.parse("580m")).

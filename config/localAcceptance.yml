@@ -12,6 +12,10 @@ server:
     enabled: true
     bufferSize: 8KiB
     minimumEntitySize: 160B
+  requestLog:
+    appenders:
+      - type: console
+        threshold: INFO
 secureHost: tramchester.com
 staticAssetCacheTimeSeconds: 300
 graphDBConfig:
@@ -85,14 +89,13 @@ swagger:
 logging:
   level: INFO
   loggers:
-    root: INFO
-    com.tramchester: INFO
-    org.eclipse.jetty.servlet: INFO
-    io.dropwizard.jersey.jackson: INFO
+    "com.tramchester": INFO
+    "org.eclipse.jetty.server": INFO
+    "io.dropwizard.assets": INFO
 
   appenders:
     - type: console
-      threshold: WARN
+      threshold: INFO
     - type: syslog
       host: localhost
       port: 514

@@ -1,15 +1,5 @@
 
 
-function stageHeadsignClass(value, key, row) {
-    if (row.action=='Walk to' || row.action=='Walk from') {
-        return 'walkingHeadSign';
-    }
-    if (row.actionStation.transportModes.includes('Train')) {
-        return 'trainHeadSign';
-    }
-    return "headsign";
-}
-
 function diffInDays(dateA, dateB) {
     const justDateA = new Date(dateA.toDateString());
     const justDateB = new Date(dateB.toDateString());
@@ -65,6 +55,16 @@ function lastDepartTime(journeys) {
     return lastDepart;
 }
 
+function timeSort(a,b) {
+    if (a>b) {
+        return 1;
+    }
+    if (b>a) {
+        return -1;
+    }
+    return 0;
+}
+
 function toHourAndMins(date) {
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
 }
@@ -75,9 +75,9 @@ export default {
             currentPage: 1,
             headers: [
                 {value: 'data-table-expand', text:'' },
-                {value:'journey.firstDepartureTimeAsDate',text:'Depart', sortable:true },
+                {value:'journey.firstDepartureTimeAsDate',text:'Depart', sortable:true, sort: (a,b) => { return timeSort(a,b) } },
                 {value:'journey.begin',text:'From', sortable:true}, 
-                {value:'journey.expectedArrivalTimeAsDate',text:'Arrive', sortable:true }, 
+                {value:'journey.expectedArrivalTimeAsDate',text:'Arrive', sortable:true, sort: (a,b) => { return timeSort(a,b) } }, 
                 {value:'journey.changeStations', text:'Change' }
                 ],
             stageHeaders : [
@@ -90,9 +90,9 @@ export default {
                 { value: 'passedStops', text: 'Stops', sortable:false  }, //, tdClass: 'passedStops', formatter: stopsFormatter },
                 { value: 'expectedArrivalTime', text: 'Arrive' , sortable:false } // , tdClass: 'arriveTime', formatter: stageDateTimeFormatter }
                 ],
-            sortBy: [{ key: 'firstDepartureTime', order: 'asc' }],
-            //singleExpand: true, // for expansion of journey table row
-            expanded: []
+
+            expanded: [],
+            sortBy: "journey.expectedArrivalTimeAsDate"
         }
       },
     props: ['journeysresponse','numjourneystodisplay'],
@@ -143,6 +143,9 @@ export default {
             const newDepartTime = toHourAndMins(newTime); 
             this.$emit('later-tram', newDepartTime);
         }, 
+        stageRowClass(item) {
+            return "stageSummary"
+        },
         dateTimeFormatter(item, index) {
             const queryDate = this.journeysresponse[index].journey.queryDateAsDate;
             return formatDate(queryDate, item)
@@ -216,47 +219,50 @@ export default {
                 :expanded.sync="expanded"
                 show-expand=true
                 dense
-                v-model:sort-by="sortBy"
+                :sort-by.sync="sortBy"
                 hide-default-footer
                 class="elevation-1">
                     <template v-slot:item.journey.firstDepartureTimeAsDate="{ item, index }">
-                        <div>{{ dateTimeFormatter(item.journey.firstDepartureTimeAsDate, index) }}</div>
+                        <div class="departTime">{{ dateTimeFormatter(item.journey.firstDepartureTimeAsDate, index) }}</div>
                     </template>
                     <template v-slot:item.journey.expectedArrivalTimeAsDate="{ item, index }">
-                        <div>{{ dateTimeFormatter(item.journey.expectedArrivalTimeAsDate, index) }}</div>
+                        <div class="arriveTime">{{ dateTimeFormatter(item.journey.expectedArrivalTimeAsDate, index) }}</div>
                     </template>
                     <template v-slot:item.journey.begin="{ item }">
                         <div>{{ item.journey.begin.name }}</div>
                     </template>
                     <template v-slot:item.journey.changeStations="{ item, index }">
-                        <div>{{ changesFormatter(item.journey.changeStations, index) }}</div>
+                        <div class="changes">{{ changesFormatter(item.journey.changeStations, index) }}</div>
                     </template>
                     <template v-slot:expanded-item="{ headers, item, index }">
                         <td :colspan="headers.length">
                             <v-data-table :items=item.journey.stages :headers="stageHeaders" 
-                            id="stages"
+                            id="stages" :item-class="stageRowClass"
                             dense
                             hide-default-footer>
                                 <template v-slot:item.firstDepartureTime="{ item }">
-                                    <div>{{ stageDateTimeFormatter(item.firstDepartureTime, item.queryDate) }}</div>
+                                    <div class="departTime">{{ stageDateTimeFormatter(item.firstDepartureTime, item.queryDate) }}</div>
                                 </template>
                                 <template v-slot:item.expectedArrivalTime="{ item }">
                                     <div>{{ stageDateTimeFormatter(item.expectedArrivalTime, item.queryDate) }}</div>
                                 </template>
                                 <template v-slot:item.action="{ item, index }">
-                                    <div>{{ actionFormatter(item) }}</div>
+                                    <div  class="action">{{ actionFormatter(item) }}</div>
+                                </template>
+                                <template v-slot:item.platform.platformNumber="{ item }">
+                                    <div  class="platform">{{ item.platform.platformNumber }}</div>
                                 </template>
                                 <template v-slot:item.actionStation="{ item }">
-                                    <a :href="stationURL(item.actionStation)" target="_blank">{{ item.actionStation.name }}</a>
+                                    <a class="actionStation" :href="stationURL(item.actionStation)" target="_blank">{{ item.actionStation.name }}</a>
                                 </template>
                                 <template v-slot:item.headSign="{ item }">
-                                    <div :class="stageHeadsignClass(item)">{{ item.headSign }}</div>
+                                    <div class="headsign" :class="stageHeadsignClass(item)">{{ item.headSign }}</div>
                                 </template>
                                 <template v-slot:item.route="{ item }">
-                                    <div :class="routeClass(item.route)">{{ routeFormatter(item.route) }}</div>
+                                    <div class="lineClass" :class="routeClass(item.route)">{{ routeFormatter(item.route) }}</div>
                                 </template>
                                 <template v-slot:item.passedStops="{ item }">
-                                    <div>{{ passedStopsFormatter(item) }}</div>
+                                    <div class="passedStops">{{ passedStopsFormatter(item) }}</div>
                                 </template>
                             </v-data-table>
                         </td>

@@ -11,6 +11,7 @@ import com.tramchester.acceptance.pages.App.TestResultSummaryRow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.repository.TransportDataFromFilesTramTest;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.reference.KnownLocations;
 import com.tramchester.testSupport.reference.TramStations;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.junit.jupiter.api.*;
@@ -40,7 +41,6 @@ public class AppUserJourneyLocationsTest extends UserJourneyTest {
 
     private final String bury = TramStations.Bury.getName();
     private final String altrincham = TramStations.Altrincham.getName();
-    private final String deansgate = TramStations.Deansgate.getName();
 
     private LocalDate when;
     private String url;
@@ -110,13 +110,13 @@ public class AppUserJourneyLocationsTest extends UserJourneyTest {
                 nearestToStops.size()+allTo.size()+recentToCount);
 
         // check recents works as expected
-        desiredJourney(appPage, altrincham, bury, when, TramTime.of(10,15), false);
+        desiredJourney(appPage, TramStations.Altrincham, TramStations.Bury, when, TramTime.of(10,15), false);
         appPage.planAJourney();
         appPage.waitForReady();
 
         // set start/dest to some other stations
-        appPage.setStart(TramStations.Piccadilly.getName());
-        appPage.setDest(TramStations.ManAirport.getName());
+        appPage.setStart(TramStations.Piccadilly);
+        appPage.setDest(TramStations.ManAirport);
 
         List<String> fromRecent = appPage.getRecentFromStops();
         assertThat(fromRecent, hasItems(altrincham, bury));
@@ -125,13 +125,15 @@ public class AppUserJourneyLocationsTest extends UserJourneyTest {
         // TODO to recent just bury, not alty
     }
 
+    // TODO Missing a test from a station to a locaion
+
     @ParameterizedTest(name = "{displayName} {arguments}")
     @MethodSource("getProvider")
     void shouldCheckNearAltrinchamToDeansgate(ProvidesDriver providesDriver) throws IOException {
         AppPage appPage = prepare(providesDriver);
 
         TramTime planTime = TramTime.of(10,15);
-        desiredJourney(appPage, "My Location", deansgate, when, planTime, false);
+        desiredJourney(appPage, nearAltrincham, TramStations.Deansgate, when, planTime, false);
         appPage.planAJourney();
 
         List<TestResultSummaryRow> results = appPage.getResults();

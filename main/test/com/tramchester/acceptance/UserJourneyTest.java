@@ -42,7 +42,7 @@ public class UserJourneyTest {
         appPage.agreeToCookies();
         assertTrue(appPage.waitForCookieAgreementInvisible(), "wait for cookie agreement to close");
         assertTrue(appPage.waitForReady(), "app ready");
-        assertTrue(appPage.waitForToStops(), "stops appeared");
+        assertTrue(appPage.waitForLocationSelectionsAvailable(), "stops appeared");
 
         return appPage;
     }

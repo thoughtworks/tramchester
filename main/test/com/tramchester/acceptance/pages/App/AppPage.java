@@ -3,7 +3,8 @@ package com.tramchester.acceptance.pages.App;
 import com.tramchester.acceptance.pages.Page;
 import com.tramchester.acceptance.pages.ProvidesDateInput;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.reference.KnownLocations;
+import com.tramchester.testSupport.reference.TramStations;
 import org.jetbrains.annotations.NotNull;
 import org.openqa.selenium.*;
 import org.openqa.selenium.interactions.Actions;
@@ -11,7 +12,6 @@ import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
-import java.time.Duration;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +30,7 @@ public class AppPage extends Page {
     private final ProvidesDateInput providesDateInput;
     private final long timeoutInSeconds = 15;
 
-    private static final String DATE_OUTPUT = "hiddendate";
+    private static final String DATE_OUTPUT = "date";
     public static final String FROM_STOP = "startStop";
     private static final String TO_STOP = "destinationStop";
     private static final String TIME = "time";
@@ -45,7 +45,7 @@ public class AppPage extends Page {
         driver.get(url);
     }
 
-    public boolean waitForToStops() {
+    public boolean waitForLocationSelectionsAvailable() {
         return waitForStops(FROM_STOP) && waitForStops(TO_STOP);
     }
 
@@ -91,16 +91,40 @@ public class AppPage extends Page {
         return planButton.isEnabled();
     }
 
-    public void setStart(String start) {
+    public void setStart(TramStations start) {
         setSelector(FROM_STOP, start);
     }
 
-    public void setDest(String destination) {
+    public void setStart(KnownLocations start) {
+        setSelector(FROM_STOP, start);
+    }
+
+    public void setDest(TramStations destination) {
         setSelector(TO_STOP, destination);
     }
 
+    private void setSelector(String selectorId, TramStations station) {
+        WebElement dropDown = findElementById(selectorId); //driver.findElement(By.id(id));
+//        moveToElement(dropDown);
+//        createWait().until(elementToBeClickable(dropDown));
+
+        // just this works for chrome but not firefox
+        dropDown.sendKeys(station.getName());
+
+    }
+
+    private void setSelector(String selectorId, KnownLocations placeholder) {
+        WebElement element = findElementById(selectorId); //driver.findElement(By.id(id));
+        moveToElement(element);
+        createWait().until(elementToBeClickable(element));
+
+        Select selector = new Select(element);
+        throw new RuntimeException("Need a way to find the MyLocation element in the dropdown");
+        //selector.selectByValue(station.getRawId());
+    }
+
     private void setSelector(String id, String selectionName) {
-        WebElement element = driver.findElement(By.id(id));
+        WebElement element = findElementById(id); //driver.findElement(By.id(id));
         moveToElement(element);
         createWait().until(elementToBeClickable(element));
 
@@ -140,17 +164,20 @@ public class AppPage extends Page {
     public void setTime(TramTime time) {
         WebElement element = getTimeElement();
 
-        Actions builder  = new Actions(driver);
         String input = providesDateInput.createTimeFormat(time.asLocalTime());
-        int chars = input.length();
 
-        moveToElement(element);
-        while (chars-- > 0) {
-            builder.sendKeys(element, Keys.ARROW_LEFT);
-        }
-        builder.sendKeys(element, input);
-        builder.pause(Duration.ofMillis(50));
-        builder.build().perform();
+        element.sendKeys(input);
+
+//        Actions builder  = new Actions(driver);
+//        int chars = input.length();
+//
+//        moveToElement(element);
+//        while (chars-- > 0) {
+//            builder.sendKeys(element, Keys.ARROW_LEFT);
+//        }
+//        builder.sendKeys(element, input);
+//        builder.pause(Duration.ofMillis(50));
+//        builder.build().perform();
     }
 
     private WebElement getTimeElement() {
@@ -168,7 +195,8 @@ public class AppPage extends Page {
     }
 
     public String getFromStop() {
-        Select selector = new Select(driver.findElement(By.id(FROM_STOP)));
+        //Select selector = new Select(driver.findElement(By.id(FROM_STOP)));
+        Select selector = new Select(findElementById(FROM_STOP));
         return selector.getFirstSelectedOption().getText().trim();
     }
 
@@ -204,7 +232,7 @@ public class AppPage extends Page {
                 until(elementToBeClickable(resultsById));
 
         WebElement tableBody = resultsDiv.findElement(By.tagName("tbody"));
-        List<WebElement> rows = tableBody.findElements(By.className("journeySummary"));
+        List<WebElement> rows = tableBody.findElements(By.tagName("tr")); //By.className("journeySummary"));
         rows.forEach(row -> results.add(new TestResultSummaryRow(row, tableBody)));
 
         return results;

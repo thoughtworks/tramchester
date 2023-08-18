@@ -52,6 +52,10 @@ public class TestEnv {
     public static final Path CACHE_DIR = Path.of("testData","cache");
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(TestEnv.class);
 
+    public static final String SERVER_URL_ENV_VAR = "SERVER_URL";
+    public static final String DISABLE_HEADLESS_ENV_VAR = "DISABLE_HEADLESS";
+    public static final String CHROMEDRIVER_PATH_ENV_VAR = "CHROMEDRIVER_PATH";
+
     public static final int DAYS_AHEAD = 7;
 
     private static final TramDate testDay;

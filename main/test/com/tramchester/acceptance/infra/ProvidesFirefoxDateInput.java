@@ -7,15 +7,16 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 
+import static com.tramchester.testSupport.TestEnv.dateFormatDashes;
 import static com.tramchester.testSupport.TestEnv.dateFormatSimple;
 
 public class ProvidesFirefoxDateInput implements ProvidesDateInput {
 
     @Override
     public String createDateInput(LocalDate localDate) {
-        // firefox - day/month/year = dd/mm/yyyy
+        // for sendKeys has to be 1972-12-24 even though this does match the actual keystrokes a user would input
 
-        return localDate.format(dateFormatSimple);
+        return localDate.format(dateFormatDashes);
     }
 
     // local java localdatetime

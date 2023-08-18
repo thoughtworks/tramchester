@@ -10,6 +10,7 @@ import com.tramchester.domain.time.Durations;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.resources.DataVersionResourceTest;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.reference.KnownLocations;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.SmokeTest;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
@@ -41,16 +42,19 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(DropwizardExtensionsSupport.class)
 public class AppUserJourneyTest extends UserJourneyTest {
-    // NOTE: Needs correct locale settings, see .circleci/config.yml setupLocale target
-
+    // Needs correct locale settings, see .circleci/config.yml setupLocale target
     // NOTE: This controls localAcceptance only, for CI acceptance tests run against the deployed dev instance
+
+    // NOTE: to disable headless set env var DISABLE_HEADLESS=true
+    // NOTE: to run against local server (but not start one) then set env var SERVER_URL to http://localhost:8080
+
     public static final String configPath = "config/localAcceptance.yml";
 
     private static final AcceptanceAppExtenstion appExtenstion = new AcceptanceAppExtenstion(App.class, configPath);
 
-    private final String bury = TramStations.Bury.getName();
-    private final String altrincham = TramStations.Altrincham.getName();
-    private final String deansgate = TramStations.Deansgate.getName();
+    private final TramStations bury = Bury;
+    private final TramStations altrincham = Altrincham;
+    private final TramStations deansgate = Deansgate;
 
     // useful consts, keep around as can swap when timetable changes
     @SuppressWarnings("unused")
@@ -101,7 +105,13 @@ public class AppUserJourneyTest extends UserJourneyTest {
         } catch (IOException e) {
             fail("did not connect to " + apiUrl + " Exception " +e);
         }
+    }
 
+    @Test
+    void shouldFindResourcesCorrectly() {
+        final ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
+        final URL url = contextClassLoader.getResource("app/index.html");
+        assertNotNull(url);
     }
 
     @ParameterizedTest(name = "{displayName} {arguments}")
@@ -117,11 +127,12 @@ public class AppUserJourneyTest extends UserJourneyTest {
         appPage.agreeToCookies();
         assertTrue(appPage.waitForCookieAgreementInvisible());
         assertTrue(appPage.waitForReady());
-        assertTrue(appPage.waitForToStops());
+        assertTrue(appPage.waitForLocationSelectionsAvailable());
     }
 
     @ParameterizedTest(name = "{displayName} {arguments}")
     @MethodSource("getProvider")
+    @SmokeTest
     void shouldHaveInitialValuesAndSetInputsSetCorrectly(ProvidesDriver providesDriver) {
         AppPage appPage = prepare(providesDriver, url);
 
@@ -129,10 +140,14 @@ public class AppUserJourneyTest extends UserJourneyTest {
 
         assertEquals(TestEnv.LocalNow().toLocalDate(), appPage.getDate());
 
+        appPage.waitForLocationSelectionsAvailable();
+
         List<String> allFromStops = appPage.getAllStopsFromStops();
+        assertFalse(allFromStops.isEmpty(), "no from stops");
         checkSorted(allFromStops);
 
         List<String> allToStops = appPage.getAllStopsToStops();
+        assertFalse(allToStops.isEmpty(), "no to stops");
         checkSorted(allToStops);
 
         desiredJourney(appPage, altrincham, bury, when, TramTime.of(10,15), false);
@@ -172,21 +187,21 @@ public class AppUserJourneyTest extends UserJourneyTest {
     @MethodSource("getProvider")
     void shouldTravelAltyToBuryAndSetRecents(ProvidesDriver providesDriver) {
         AppPage appPage = prepare(providesDriver, url);
-        final String from = this.altrincham;
-        final String to = this.deansgate;
-        desiredJourney(appPage, from, to, when, TramTime.of(10,15), false);
+//        final String from = this.altrincham;
+//        final String to = this.deansgate;
+        desiredJourney(appPage, Altrincham, Deansgate, when, TramTime.of(10,15), false);
         appPage.planAJourney();
 
         assertTrue(appPage.resultsClickable(), "results clickable");
         assertTrue(appPage.searchEnabled());
 
         // so above station in recents
-        appPage.setStart(ExchangeSquare.getName()); // so 'from' is available in the recents list
-        appPage.setDest(TramStations.PiccadillyGardens.getName()); // so 'to' is available in the recents list
+        appPage.setStart(ExchangeSquare); // so 'from' is available in the recents list
+        appPage.setDest(TramStations.PiccadillyGardens); // so 'to' is available in the recents list
 
         // check 'from' recents are set
         List<String> fromRecent = appPage.getRecentFromStops();
-        assertThat(fromRecent, hasItems(from, to));
+        assertThat(fromRecent, hasItems(Altrincham.getName(), Deansgate.getName()));
 
         List<String> remainingFromStops = appPage.getAllStopsFromStops();
         assertThat(remainingFromStops, not(contains(fromRecent)));
@@ -196,19 +211,18 @@ public class AppUserJourneyTest extends UserJourneyTest {
 
         // check 'to' recents are set
         List<String> toRecent = appPage.getRecentToStops();
-        assertThat(toRecent, hasItems(from, to));
+        assertThat(toRecent, hasItems(Altrincham.getName(), Deansgate.getName()));
         List<String> remainingToStops = appPage.getAllStopsToStops();
         assertThat(remainingToStops, not(contains(toRecent)));
         assertEquals(NUM_TFGM_TRAM_STATIONS-1,
                 remainingToStops.size()+toRecent.size()); // less one as 'from' stop is excluded
 
         // inputs still set
-        assertJourney(appPage, ExchangeSquare.getName(), PiccadillyGardens.getName(), "10:15", when, false);
+        assertJourney(appPage, ExchangeSquare, PiccadillyGardens, "10:15", when, false);
     }
 
     @ParameterizedTest(name = "{displayName} {arguments}")
     @MethodSource("getProvider")
-    @SmokeTest
     void shouldCheckAltrinchamToDeansgate(ProvidesDriver providesDriver) {
         AppPage appPage = prepare(providesDriver, url);
         TramTime queryTime = TramTime.of(10,0);
@@ -243,7 +257,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
         assertEquals(1, stages.size());
         Stage stage = stages.get(0);
 
-        validateAStage(stage, firstResult.getDepartTime(), "Board Tram", altrincham, 1,
+        validateAStage(stage, firstResult.getDepartTime(), "Board Tram", Altrincham.getName(), 1,
                 altyToBuryLineName, Bury.getName(), 9);
     }
 
@@ -252,7 +266,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
     void shouldCheckLateNightJourney(ProvidesDriver providesDriver) {
         AppPage appPage = prepare(providesDriver, url);
         TramTime queryTime = TramTime.of(23,42);
-        desiredJourney(appPage, TraffordCentre.getName(), ImperialWarMuseum.getName(), when, queryTime, false);
+        desiredJourney(appPage, TraffordCentre, ImperialWarMuseum, when, queryTime, false);
         appPage.planAJourney();
 
         assertTrue(appPage.resultsClickable(), "results displayed");
@@ -275,7 +289,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
 
         appPage.waitForStops(AppPage.FROM_STOP);
         List<String> destStops = appPage.getToStops();
-        assertFalse(destStops.contains(altrincham), "should not contain alty");
+        assertFalse(destStops.contains(Altrincham.getName()), "should not contain alty");
     }
 
     @ParameterizedTest(name = "{displayName} {arguments}")
@@ -384,7 +398,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
     void shouldHaveMultistageJourney(ProvidesDriver providesDriver) {
         AppPage appPage = prepare(providesDriver, url);
         TramTime planTime = TramTime.of(10,0);
-        desiredJourney(appPage, altrincham, TramStations.ManAirport.getName(), when, planTime, false);
+        desiredJourney(appPage, altrincham, TramStations.ManAirport, when, planTime, false);
         appPage.planAJourney();
         assertTrue(appPage.resultsClickable());
 
@@ -431,7 +445,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
 //                Piccadilly.getName(), 7);
 
         TramTime firstDepartTime = firstResult.getDepartTime();
-        validateAStage(firstStage, Collections.singleton(firstDepartTime), "Board Tram", altrincham, 1,
+        validateAStage(firstStage, Collections.singleton(firstDepartTime), "Board Tram", Altrincham.getName(), 1,
                 lineNames, headsigns, 7);
 
         // Too timetable dependent?
@@ -515,7 +529,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
 
         AppPage afterReload = providesDriver.getAppPage();
         assertTrue(afterReload.waitForCookieAgreementInvisible());
-        afterReload.waitForToStops();
+        afterReload.waitForLocationSelectionsAvailable();
     }
 
     @ParameterizedTest(name = "{displayName} {arguments}")
@@ -531,7 +545,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
         assertTrue(appPage.waitForDisclaimerInvisible());
     }
 
-    public static void desiredJourney(AppPage appPage, String start, String dest, LocalDate date, TramTime time, boolean arriveBy) {
+    public static void desiredJourney(AppPage appPage, TramStations start, TramStations dest, LocalDate date, TramTime time, boolean arriveBy) {
         appPage.setStart(start);
         appPage.setDest(dest);
         appPage.setSpecificDate(date);
@@ -539,10 +553,18 @@ public class AppUserJourneyTest extends UserJourneyTest {
         appPage.setArriveBy(arriveBy);
     }
 
-    private static void assertJourney(AppPage appPage, String start, String dest, String time, LocalDate date,
+    public static void desiredJourney(AppPage appPage, KnownLocations start, TramStations dest, LocalDate date, TramTime time, boolean arriveBy) {
+        appPage.setStart(start);
+        appPage.setDest(dest);
+        appPage.setSpecificDate(date);
+        appPage.setTime(time);
+        appPage.setArriveBy(arriveBy);
+    }
+
+    private static void assertJourney(AppPage appPage, TramStations start, TramStations dest, String time, LocalDate date,
                                       boolean arriveBy) {
-        assertEquals(start, appPage.getFromStop());
-        assertEquals(dest, appPage.getToStop());
+        assertEquals(start.getName(), appPage.getFromStop());
+        assertEquals(dest.getName(), appPage.getToStop());
         assertEquals(time, appPage.getTime());
         assertEquals(date, appPage.getDate());
         assertEquals(arriveBy, appPage.getArriveBy());

@@ -34,7 +34,7 @@ public class ProvidesChromeDriver extends ProvidesDesktopDriver {
     public ProvidesChromeDriver(boolean enableGeo) {
         this.enableGeo = enableGeo;
 
-        Path chromedriverPath = TestEnv.getPathFromEnv("CHROMEDRIVER_PATH");
+        Path chromedriverPath = TestEnv.getPathFromEnv(TestEnv.CHROMEDRIVER_PATH_ENV_VAR);
         if (chromedriverPath!=null) {
             System.setProperty(CHROME_DRIVER_EXE_PROPERTY, chromedriverPath.toString());
         }
@@ -51,7 +51,7 @@ public class ProvidesChromeDriver extends ProvidesDesktopDriver {
             chromeOptions.setExperimentalOption("w3c",false);
             //chromeOptions.setExperimentalOption("geolocation", true);
         } else {
-            if (System.getenv("DISABLE_HEADLESS")==null) {
+            if (System.getenv(TestEnv.DISABLE_HEADLESS_ENV_VAR)==null) {
                 chromeOptions.setHeadless(true);
             }
         }

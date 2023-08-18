@@ -29,6 +29,14 @@ function filterStops(stops, requestedModes, alreadyDisplayed) {
     return results;
 }
 
+function getStopOrLocation(stopId, app) {
+    if (stopId==app.myLocation.id) {
+        return app.myLocation;
+    } else {
+        return app.stops.allStops.get(stopId);
+    }
+}
+
 export default {
     components: {
         VueTypeaheadBootstrap
@@ -45,7 +53,9 @@ export default {
     watch: {
         value() {
             // so the swap button works as we don't bind the prop value to the native component, but bind currentId instead
-            this.currentId = this.value.id;
+            if (this.value!=null) {
+                this.currentId = this.value.id;
+            }
         }
     },
     methods: {
@@ -53,17 +63,19 @@ export default {
             const stopId = event.target.value;
             const myLocation = this.$parent.myLocation;
             this.currentId = stopId;
-            if (stopId==myLocation.id) {
-                this.$emit('input', myLocation);
-            } else {
-                const stop = this.stops.allStops.get(stopId);
-                this.$emit('input', stop);
-            }
+            const toSend = getStopOrLocation(stopId, this);
+            this.$emit('input', toSend);
+            // if (stopId==myLocation.id) {
+            //     this.$emit('input', myLocation);
+            // } else {
+            //     const stop = this.stops.allStops.get(stopId);
+            //     this.$emit('input', stop);
+            // }
         },
         changedValue(event) {
-            const stopId = event.target.value;
-            this.currentId = stopId;
-            this.value = stopId;
+            // const stopId = event.target.value;
+            // this.currentId = stopId;
+            // this.value = stopId;
         },
         serialize: function(station) {
             if (station==null) {
@@ -121,7 +133,7 @@ export default {
     <div>
     <!-- Dropdown selection mode -->
     <!-- note need input, change and model here because dynamically change contents of opt-groups -->
-        <select class="form-select form-control mb-2" v-bind:id="name+'Stop'"
+        <select class="form-select form-control mb-2" :id="name+'Stop'"
                 :disabled="disabled"
                 v-on:input="updateValue($event)"
                 v-on:change="changedValue($event)"

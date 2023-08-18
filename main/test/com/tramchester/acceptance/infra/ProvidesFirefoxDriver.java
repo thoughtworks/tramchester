@@ -5,6 +5,7 @@ import com.tramchester.acceptance.pages.ProvidesDateInput;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.testSupport.TestEnv;
 import org.apache.commons.io.FileUtils;
+import org.junit.jupiter.api.Test;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.NoSuchSessionException;
 import org.openqa.selenium.WebElement;
@@ -60,7 +61,7 @@ public class ProvidesFirefoxDriver extends ProvidesDesktopDriver {
             FirefoxOptions firefoxOptions = new FirefoxOptions(capabilities);
 
             // allow disabling of headless more via env var
-            if (System.getenv("DISABLE_HEADLESS")==null) {
+            if (System.getenv(TestEnv.DISABLE_HEADLESS_ENV_VAR)==null) {
                 firefoxOptions.setHeadless(true);
             }
 
