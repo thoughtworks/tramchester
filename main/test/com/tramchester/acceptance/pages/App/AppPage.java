@@ -21,7 +21,7 @@ import static org.openqa.selenium.support.ui.ExpectedConditions.*;
 
 public class AppPage extends Page {
     private static final String MODAL_COOKIE_CONSENT = "modal-cookieConsent";
-    private static final String MODAL_DISCLAIMER = "modal-disclaimer";
+    private static final String MODAL_DISCLAIMER = "modaldisclaimer";
     private static final String PLAN = "plan";
 
     private static final String START_GROUP = "startGroup";

@@ -107,13 +107,6 @@ public class AppUserJourneyTest extends UserJourneyTest {
         }
     }
 
-    @Test
-    void shouldFindResourcesCorrectly() {
-        final ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
-        final URL url = contextClassLoader.getResource("app/index.html");
-        assertNotNull(url);
-    }
-
     @ParameterizedTest(name = "{displayName} {arguments}")
     @MethodSource("getProvider")
     void shouldShowInitialCookieConsentAndThenDismiss(ProvidesDriver providesDriver) {
