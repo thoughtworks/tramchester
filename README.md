@@ -1,8 +1,5 @@
-
-
-Tramchester 
-===========
-[![CircleCI](https://circleci.com/gh/thoughtworks/tramchester/tree/master.svg?style=svg)](https://circleci.com/gh/thoughtworks/tramchester/tree/master)
+The maintained version is here https://github.com/cartwrightian/tramchester_ic
+==============================================================================
 
 Tramchester was built by [ThoughtWorks](http://www.thoughtworks.com) in Manchester
 
