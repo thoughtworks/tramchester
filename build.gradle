@@ -60,7 +60,7 @@ repositories {
 // useful reminder ./gradlew -q dependencyInsight --dependency X.Y:Z
 dependencies {
 
-    implementation('javax.measure:unit-api:2.1.3')
+    implementation('javax.measure:unit-api:2.2')
     implementation("io.dropwizard:dropwizard-core:$dropwizardVersion")
     // slf4j in governator was causing race condition with dropwizard start up code on initial get of logger
     implementation('com.netflix.governator:governator:1.17.12') {
