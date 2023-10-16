@@ -104,7 +104,7 @@ dependencies {
             "software.amazon.awscdk:autoscaling:$awsCdkVersion",
             "software.amazon.awscdk:cdk-cx-api:2.79.1"
 
-    implementation('org.geotools:gt-main:28.1')
+    implementation('org.geotools:gt-main:30.0')
     implementation('org.geotools:gt-epsg-hsql:28.1')
     implementation('org.roaringbitmap:RoaringBitmap:0.9.39')
 
