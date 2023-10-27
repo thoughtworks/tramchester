@@ -20,7 +20,7 @@
   "dependencies": {
     "@skyscanner/popper.js": "^1.12.9-beta.1",
     "ajv": "^8.11.0",
-    "aws-cdk": "^2.89.0",
+    "aws-cdk": "^2.103.1",
     "axios": "^1.4.0",
     "bootstrap": "^4.6.2",
     "bootstrap-vue": "^2.22.0",
